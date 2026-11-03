@@ -6,9 +6,12 @@ Note on stack: this project runs on React (TanStack Start) with Lovable Cloud as
 
 ## Pages
 
-1. **Landing (/)** — title, one-line intro (structure, management, financial readiness, risk protection), "Start Assessment" button.
+1. **Landing (/)** — title, one-line intro (structure, management, financial readiness, risk protection), "Start Assessment" button (sends signed-out visitors to sign in).
+1b. **Login (/auth)** — email & password sign in / sign up. Sign up asks for name and company. Includes "Forgot password" plus a reset-password page. Header shows the signed-in user with a Sign out button.
 2. **Assessment (/assessment)** — one question at a time, large Yes / No buttons, "Question 3 of 10" + progress bar, Back / Next, answers kept while moving around. "Generate My Report" enabled only when all 10 are answered. Clear loading and error states.
-3. **Report (/report/$id)** — "Growth Health Check Report", date, big score with a simple ring indicator, Yes/No totals, weakness cards (question number, title, description) for "No" answers only. Perfect-score message when 10/10. "Print / Save as PDF" button; navigation and buttons hidden when printing. Each report has a unique shareable link.
+Assessment and report pages require sign-in.
+
+3. **Report (/report/$id)** — "Growth Health Check Report", date, big score with a simple ring indicator, Yes/No totals, weakness cards (question number, title, description) for "No" answers only. Perfect-score message when 10/10. "Print / Save as PDF" button; navigation and buttons hidden when printing. Each report has a unique link, visible only to its owner. A simple "My reports" list shows past assessments.
 
 ## Design
 
@@ -17,9 +20,10 @@ Clean consulting style: warm neutral background, deep navy/ink text, one restrai
 ## Data (Lovable Cloud)
 
 - `questions` (id 1–10, question, weakness_title, weakness_description) — seeded with the 10 provided items.
-- `assessments` (id, score, total_yes, total_no, created_at) — score checked between 0 and 10.
+- `profiles` (user id, name, company) — created automatically on sign-up.
+- `assessments` (id, user_id, score, total_yes, total_no, created_at) — score checked between 0 and 10.
 - `assessment_answers` (id, assessment_id, question_id, answer true/false, created_at) — unique per assessment + question.
-- No login. Visitors cannot read or write tables directly; everything goes through the server.
+- Users can only see their own profile, assessments and answers. Writes go through the server.
 
 ## Server logic
 
@@ -33,12 +37,14 @@ Automated tests for scoring and weakness generation covering the spec scenarios:
 
 ## Out of scope
 
-Login, payments, AI, admin dashboard, extra questions — per the spec.
+Payments, AI, admin dashboard, extra questions — per the spec.
 
 ## Technical details
 
 - Enable Lovable Cloud; one migration creates the 3 tables (with grants + RLS, no public policies), seeds questions, and adds a `submit_assessment(jsonb)` SQL function for the atomic insert.
 - `src/lib/assessment.ts`: question list, Zod schema, `scoreAnswers()`, `buildWeaknesses()`.
-- `src/lib/assessment.functions.ts`: `submitAssessment` and `getReport` server functions (admin client loaded inside handlers, after Zod validation).
-- Routes: `index.tsx`, `assessment.tsx`, `report.$id.tsx` with their own page titles/descriptions; `@media print` rules in styles.
+- Enable email auth; `profiles` table + signup trigger reading name/company from user metadata.
+- `src/lib/assessment.functions.ts`: `submitAssessment`, `getReport`, `listMyReports` with `requireSupabaseAuth`; owner-scoped RLS; `submit_assessment` uses `auth.uid()`.
+- Protected pages under the `_authenticated` layout; `/auth` and `/reset-password` public.
+- Routes: `index.tsx`, `auth.tsx`, `reset-password.tsx`, `_authenticated/assessment.tsx`, `_authenticated/report.$id.tsx`, `_authenticated/reports.tsx` with their own page titles/descriptions; `@media print` rules in styles.
 - Vitest tests in `src/test/assessment.test.ts`.
