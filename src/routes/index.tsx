@@ -1,24 +1,43 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Growth Health Check — Is your business ready to grow?" },
+      { name: "description", content: "Answer 10 quick questions and get a scored report on your business structure, management, finances and risk protection." },
+      { property: "og:title", content: "Growth Health Check" },
+      { property: "og:description", content: "A 10-question assessment of your business's growth readiness." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+const AREAS = ["Business structure", "Management", "Financial readiness", "Risk protection"];
+
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="mx-auto max-w-4xl px-5 py-20 sm:py-28">
+      <p className="text-sm font-semibold uppercase tracking-widest text-accent">10 questions · 3 minutes</p>
+      <h1 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight text-foreground sm:text-6xl">
+        How ready is your business to grow?
+      </h1>
+      <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+        The Growth Health Check scores your business out of 10 and shows exactly where the gaps are — across
+        structure, management, financial readiness and risk protection.
+      </p>
+      <Button asChild size="lg" className="mt-10 h-12 px-8 text-base">
+        <Link to="/assessment">Start Assessment</Link>
+      </Button>
+      <ul className="mt-16 grid gap-3 sm:grid-cols-4">
+        {AREAS.map((a) => (
+          <li key={a} className="rounded-lg border border-border bg-card p-4 text-sm font-medium shadow-[var(--shadow-card)]">
+            {a}
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }
