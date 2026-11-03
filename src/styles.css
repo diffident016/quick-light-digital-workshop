@@ -64,8 +64,10 @@
   --ease-fluid: cubic-bezier(0.22, 1, 0.36, 1);
   --animate-rise: rise var(--duration-slow) var(--ease-fluid) both;
   --animate-pop: pop 260ms var(--ease-fluid) both;
-  --font-serif: "Fraunces", Georgia, serif;
-  --font-sans: "Manrope", system-ui, sans-serif;
+  /* Source Serif 4: sober editorial serif for headings. Inter: clear UI/body text with
+     tabular figures. Both are variable fonts with optical sizing. */
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --shadow-card: var(--shadow-card);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -155,6 +157,7 @@
 @layer base {
   body {
     font-family: var(--font-sans);
+    font-optical-sizing: auto;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
   }
@@ -165,8 +168,8 @@
     font-optical-sizing: auto;
     text-wrap: balance;
   }
-  h1 { letter-spacing: -0.025em; line-height: 1.08; }
-  h2 { letter-spacing: -0.015em; line-height: 1.2; }
+  h1 { letter-spacing: -0.02em; line-height: 1.1; }
+  h2 { letter-spacing: -0.01em; line-height: 1.2; }
   h3 { letter-spacing: -0.005em; line-height: 1.3; }
   p { text-wrap: pretty; }
 }

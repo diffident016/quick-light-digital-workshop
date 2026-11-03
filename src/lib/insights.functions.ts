@@ -113,24 +113,23 @@ export const generateActionPlan = createServerFn({ method: "POST" })
           countRecentGenerations: (_userId, since) => countRecent(sb, since.toISOString()),
           callModel: generateJson,
           savePlan: async (row) => {
-            // Service role: users have no INSERT grant, so plans can only be written here,
-            // after validation and the rate-limit check above.
-            const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-            const { data: saved, error } = await untyped(supabaseAdmin)
-              .from("assessment_insights")
-              .insert({
-                assessment_id: row.assessmentId,
-                user_id: row.userId,
-                model: row.model,
-                prompt_version: row.promptVersion,
-                language: row.language,
-                business_context: row.businessContext,
-                content: row.content,
-              })
-              .select("created_at")
-              .single<{ created_at: string }>();
-            if (error || !saved) throw error ?? new Error("Insert returned no row");
-            return { createdAt: saved.created_at };
+            // Saved via the save_assessment_insight DB function (migration 0002) as the signed-in
+            // user. The DB re-checks ownership and the daily limit, so no service-role key is needed.
+            const { data: createdAt, error } = await sb.rpc("save_assessment_insight", {
+              _assessment_id: row.assessmentId,
+              _model: row.model,
+              _prompt_version: row.promptVersion,
+              _language: row.language,
+              _business_context: row.businessContext,
+              _content: row.content,
+            });
+            if (error) {
+              if (error.message.includes("rate_limited")) throw new RateLimitedError("Daily limit reached");
+              if (error.message.includes("not_found")) throw new ReportNotFoundError("Report not found");
+              throw error;
+            }
+            if (typeof createdAt !== "string") throw new Error("Save returned no timestamp");
+            return { createdAt };
           },
           saveContextForNextTime: async (ctx) => {
             const { error } = await sb.from("profiles").update({ business_context: ctx }).eq("id", context.userId);
