@@ -14,13 +14,120 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      assessment_answers: {
+        Row: {
+          answer: boolean
+          assessment_id: string
+          created_at: string
+          id: string
+          question_id: number
+        }
+        Insert: {
+          answer: boolean
+          assessment_id: string
+          created_at?: string
+          id?: string
+          question_id: number
+        }
+        Update: {
+          answer?: boolean
+          assessment_id?: string
+          created_at?: string
+          id?: string
+          question_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_answers_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessments: {
+        Row: {
+          created_at: string
+          id: string
+          score: number
+          total_no: number
+          total_yes: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          score: number
+          total_no: number
+          total_yes: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          score?: number
+          total_no?: number
+          total_yes?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          company: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          id: number
+          question: string
+          weakness_description: string
+          weakness_title: string
+        }
+        Insert: {
+          id: number
+          question: string
+          weakness_description: string
+          weakness_title: string
+        }
+        Update: {
+          id?: number
+          question?: string
+          weakness_description?: string
+          weakness_title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      submit_assessment: { Args: { _answers: Json }; Returns: string }
     }
     Enums: {
       [_ in never]: never
