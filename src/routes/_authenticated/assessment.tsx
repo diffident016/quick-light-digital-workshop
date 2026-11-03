@@ -29,7 +29,7 @@ function Assessment() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const q = QUESTIONS[step];
+  const q = QUESTIONS[step]!;
   const answered = Object.keys(answers).length;
   const isLast = step === QUESTIONS.length - 1;
   const complete = answered === QUESTIONS.length;
