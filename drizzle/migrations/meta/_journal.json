@@ -8,6 +8,13 @@
       "when": 1793700473757,
       "tag": "0000_growth_health_check",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1793740000000,
+      "tag": "0001_ai_action_plans",
+      "breakpoints": true
     }
   ]
 }

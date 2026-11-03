@@ -40,11 +40,12 @@ function ResetPassword() {
 
   return (
     <main className="mx-auto max-w-md px-5 py-16">
-      <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-border bg-card p-8 shadow-[var(--shadow-card)]">
+      <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-border bg-card p-7 shadow-[var(--shadow-raised)] sm:p-9">
         <h1 className="text-3xl font-semibold">Set a new password</h1>
         <div className="space-y-1.5">
           <Label htmlFor="password">New password</Label>
-          <Input id="password" name="password" type="password" minLength={6} required className="h-11" />
+          <Input id="password" name="password" type="password" minLength={6} required autoComplete="new-password" autoFocus className="h-11 user-invalid:border-destructive" />
+          <p className="text-xs text-muted-foreground">At least 6 characters.</p>
         </div>
         <Button type="submit" className="h-11 w-full" disabled={loading}>
           {loading ? "Saving…" : "Update password"}

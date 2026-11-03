@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { answersSchema, buildWeaknesses, scoreAnswers, type Answer } from "@/lib/assessment";
+import { scoreTone } from "@/lib/score-tone";
 
 const questions = Array.from({ length: 10 }, (_, i) => ({
   id: i + 1,
@@ -26,6 +27,13 @@ describe("scoring", () => {
     const a = make(0).map((x) => (x.question_id === 3 || x.question_id === 9 ? { ...x, answer: false } : x));
     expect(buildWeaknesses(a, questions).map((w) => w.title)).toEqual(["W3", "W9"]);
   });
+
+  it("orders weaknesses by question number regardless of answer order", () => {
+    const a = make(0)
+      .map((x) => (x.question_id === 2 || x.question_id === 7 ? { ...x, answer: false } : x))
+      .reverse();
+    expect(buildWeaknesses(a, questions).map((w) => w.questionId)).toEqual([2, 7]);
+  });
 });
 
 describe("validation", () => {
@@ -40,5 +48,26 @@ describe("validation", () => {
     a[0] = { question_id: 1, answer: "yes" };
     expect(answersSchema.safeParse(a).success).toBe(false);
   });
+  it("rejects out-of-range question ids", () => {
+    const a = make(0);
+    a[9] = { question_id: 11, answer: true };
+    expect(answersSchema.safeParse(a).success).toBe(false);
+  });
+  it("rejects unexpected fields", () => {
+    const a: unknown[] = make(0);
+    a[0] = { question_id: 1, answer: true, score: 10 };
+    expect(answersSchema.safeParse(a).success).toBe(false);
+  });
   it("accepts 10 unique answers", () => expect(answersSchema.safeParse(make(4)).success).toBe(true));
+});
+
+describe("scoreTone", () => {
+  it.each([
+    [10, "high"],
+    [8, "high"],
+    [7, "mid"],
+    [5, "mid"],
+    [4, "low"],
+    [0, "low"],
+  ] as const)("score %i -> %s", (score, tone) => expect(scoreTone(score)).toBe(tone));
 });
